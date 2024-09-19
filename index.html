@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Productos</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            margin: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 10px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+
+        .section-title:hover {
+            background-color: #0056b3;
+        }
+
+        .product-list {
+            margin-bottom: 20px;
+        }
+
+        .product {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .product:last-child {
+            border-bottom: none;
+        }
+
+        .product-name {
+            font-size: 16px;
+            width: 60%;
+        }
+
+        .price {
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .controls button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .controls button:hover {
+            background-color: #0056b3;
+        }
+
+        .controls span {
+            margin: 0 10px;
+            font-size: 18px;
+            width: 40px;
+            text-align: center;
+        }
+
+        .total {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 24px;
+            color: #28a745;
+        }
+
+        .summary {
+            margin-top: 20px;
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .summary-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-empty {
+            text-align: center;
+            font-style: italic;
+            color: #888;
+        }
+
+        .payment-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .payment-section input {
+            padding: 10px;
+            font-size: 16px;
+            width: calc(100% - 20px);
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .change {
+            font-size: 20px;
+            font-weight: bold;
+            color: #dc3545;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .product-name {
+                font-size: 14px;
+            }
+
+            .controls button {
+                padding: 6px 10px;
+            }
+
+            .controls span {
+                font-size: 16px;
+            }
+
+            .total {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <h1>Calculadora de Productos</h1>
+
+        <!-- Toggle bebidas -->
+        <div class="section-title" id="toggleBebidas">
+            <span>Bebidas</span>
+            <span id="bebidasSign">+</span>
+        </div>
+        <div id="bebidasList" class="product-list" style="display: none;">
+            <!-- Bebidas se añadirán aquí por JavaScript -->
+        </div>
+
+        <!-- Toggle Bocadillos -->
+        <div class="section-title" id="toggleBocadillos">
+            <span>Bocadillos</span>
+            <span id="bocadillosSign">+</span>
+        </div>
+        <div id="bocadillosList" class="product-list" style="display: none;">
+            <!-- Bocadillos se añadirán aquí por JavaScript -->
+        </div>
+
+        <!-- Total Price -->
+        <h2 id="totalPrice" class="total">Total: 0.00€</h2>
+
+        <!-- Resumen de Productos Seleccionados -->
+        <div id="summary" class="summary">
+            <div class="summary-title">Resumen de Productos</div>
+            <div id="summaryItems" class="summary-empty">No has seleccionado ningún producto aún.</div>
+        </div>
+
+        <!-- Payment Section -->
+        <div class="payment-section">
+            <h2>Introduce cantidad pagada</h2>
+            <input type="number" id="paymentInput" placeholder="Introduce cantidad en euros" />
+            <div id="change" class="change">Cambio: 0.00€</div>
+        </div>
+    </div>
+
+    <script>
+        // Datos de productos
+        const bebidas = [
+            { name: "LATA CERVEZA SIN ALCOHOL", price: 2.00, quantity: 0 },
+            { name: "LATA CERVEZA SIN ALCOHOL", price: 2.00, quantity: 0 },
+            { name: "CAÑA DOBLE", price: 3.00, quantity: 0 },
+            { name: "CERVZA MINI", price: 5.00, quantity: 0 },
+            { name: "COCA COLA / ZERO", price: 2.00, quantity: 0 },
+            { name: "FANTA LIMÓN", price: 2.00, quantity: 0 },
+            { name: "FANTA NARANJA", price: 2.00, quantity: 0 },
+            { name: "NESTIE", price: 2.00, quantity: 0 },
+            { name: "AQUARIUS", price: 2.00, quantity: 0 },
+            { name: "RED BULL", price: 3.00, quantity: 0 },
+            { name: "AGUA (0,50 cl.)", price: 1.00, quantity: 0 },
+            { name: "WHISKY SOLO", price: 4.50, quantity: 0 },
+            { name: "MINI CALIMOCHO", price: 5.00, quantity: 0 },
+            { name: "MINI COMBINADO", price: 10.00, quantity: 0 },
+            { name: "CUBATAS", price: 5.50, quantity: 0 },
+            { name: "CHUPITOS", price: 2.00, quantity: 0 },
+        ];
+
+        const bocadillos = [
+            { name: "CHORIZO (Montado)", price: 3.00, quantity: 0 },
+            { name: "CHORIZO (Bocadillo)", price: 5.00, quantity: 0 },
+            { name: "MORCILLA (Montado)", price: 3.00, quantity: 0 },
+            { name: "MORCILLA (Bocadillo)", price: 5.00, quantity: 0 },
+            { name: "PANCETA (Montado)", price: 3.00, quantity: 0 },
+            { name: "PANCETA (Bocadillo)", price: 5.00, quantity: 0 },
+            { name: "LOMO (Montado)", price: 3.50, quantity: 0 },
+            { name: "LOMO (Bocadillo)", price: 6.00, quantity: 0 },
+            { name: "JAMÓN (Montado)", price: 3.50, quantity: 0 },
+            { name: "JAMÓN (Bocadillo)", price: 6.00, quantity: 0 },
+            { name: "QUESO (Montado)", price: 3.50, quantity: 0 },
+            { name: "QUESO (Bocadillo)", price: 6.00, quantity: 0 },
+        ];
+
+        let showBebidas = false;
+        let showBocadillos = false;
+        let payment = 0;
+
+        function renderProducts() {
+            const bebidasList = document.getElementById('bebidasList');
+            const bocadillosList = document.getElementById('bocadillosList');
+            const summaryItems = document.getElementById('summaryItems');
+            const totalPrice = document.getElementById('totalPrice');
+            const changeElement = document.getElementById('change');
+            
+            // Render bebidas
+            bebidasList.innerHTML = bebidas.map((product, index) => `
+                <div class="product">
+                    <div class="product-name">
+                        ${product.name} <span class="price">${product.price.toFixed(2)}€</span>
+                    </div>
+                    <div class="controls">
+                        <button onclick="updateQuantity(${index}, -1, 'bebidas')">-</button>
+                        <span>${product.quantity}</span>
+                        <button onclick="updateQuantity(${index}, 1, 'bebidas')">+</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Render bocadillos
+            bocadillosList.innerHTML = bocadillos.map((product, index) => `
+                <div class="product">
+                    <div class="product-name">
+                        ${product.name} <span class="price">${product.price.toFixed(2)}€</span>
+                    </div>
+                    <div class="controls">
+                        <button onclick="updateQuantity(${index}, -1, 'bocadillos')">-</button>
+                        <span>${product.quantity}</span>
+                        <button onclick="updateQuantity(${index}, 1, 'bocadillos')">+</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Render summary
+            const selectedProducts = [...bebidas, ...bocadillos].filter(product => product.quantity > 0);
+            summaryItems.innerHTML = selectedProducts.length > 0 ? selectedProducts.map(product => `
+                <div class="summary-item">
+                    <span>${product.name} (x${product.quantity})</span>
+                    <span>${(product.price * product.quantity).toFixed(2)}€</span>
+                </div>
+            `).join('') : 'No has seleccionado ningún producto aún.';
+
+            // Render total
+            const total = bebidas.reduce((acc, product) => acc + product.price * product.quantity, 0) +
+                          bocadillos.reduce((acc, product) => acc + product.price * product.quantity, 0);
+            totalPrice.textContent = `Total: ${total.toFixed(2)}€`;
+
+            // Render cambio
+            changeElement.textContent = (payment - total) <= 0 ? 0 : `Cambio: ${(payment - total).toFixed(2)}€`;
+        }
+
+        function updateQuantity(index, delta, type) {
+            if (type === 'bebidas') {
+                bebidas[index].quantity = Math.max(0, bebidas[index].quantity + delta);
+            } else if (type === 'bocadillos') {
+                bocadillos[index].quantity = Math.max(0, bocadillos[index].quantity + delta);
+            }
+            renderProducts();
+        }
+
+        function toggleSection(section) {
+            if (section === 'bebidas') {
+                showBebidas = !showBebidas;
+                document.getElementById('bebidasList').style.display = showBebidas ? 'block' : 'none';
+                document.getElementById('bebidasSign').textContent = showBebidas ? '-' : '+';
+            } else if (section === 'bocadillos') {
+                showBocadillos = !showBocadillos;
+                document.getElementById('bocadillosList').style.display = showBocadillos ? 'block' : 'none';
+                document.getElementById('bocadillosSign').textContent = showBocadillos ? '-' : '+';
+            }
+            renderProducts();
+        }
+
+        // Eventos
+        document.getElementById('toggleBebidas').addEventListener('click', () => toggleSection('bebidas'));
+        document.getElementById('toggleBocadillos').addEventListener('click', () => toggleSection('bocadillos'));
+
+        document.getElementById('paymentInput').addEventListener('input', (event) => {
+            payment = parseFloat(event.target.value) || 0;
+            renderProducts();
+        });
+
+        // Inicializar
+        renderProducts();
+    </script>
+</body>
+</html>
